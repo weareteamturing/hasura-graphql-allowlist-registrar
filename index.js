@@ -75,7 +75,7 @@ async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
 
     return {
       name: `${path.basename(file)}${appendMetadata ? `_${metadata}_${fileFullPathHash}_${fileContentHash}` : ''}`,
-      query: await readFile(file, 'utf8'),
+      query: content,
     };
 
   });
