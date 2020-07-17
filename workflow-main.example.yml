@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  allowlist_registrar_job:
+    runs-on: ubuntu-latest
+    name: A job to register allowlist
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Register action step
+      uses: susemeee/hasura-graphql-allowlist-registrar@v1
+      with:
+        host: 'https://hasura-server-example.hasura.app'
+        key: 'keykeykey'
