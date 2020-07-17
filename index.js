@@ -3,6 +3,7 @@ const util = require('util');
 const path = require('path');
 const axios = require('axios').default;
 const DateTime = require('luxon').DateTime;
+const crypto = require('crypto');
 
 const readFile = util.promisify(require('fs').readFile);
 const glob = util.promisify(require('glob'));
@@ -62,14 +63,21 @@ class HasuraAllowlistClient {
 
 /** @returns {Array<{ name: string, query: string }>} */
 async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
-  const files = await glob(filesPath);
-  const metadata = `${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_ACTOR}_${process.env.GITHUB_SHA}`;
 
+  const metadata = `${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_REPOSITORY}_${process.env.GITHUB_SHA}`;
+
+  const files = await glob(filesPath);
   const filesReader = files.map(async file => {
+
+    const content = await readFile(file, 'utf8');
+    const fileFullPathHash = crypto.createHash('sha256').update(file, 'utf8').hexdigest();
+    const fileContentHash = crypto.createHash('sha256').update(content, 'utf8').hexdigest();
+
     return {
-      name: `${path.basename(file)}${appendMetadata ? `_${metadata}` : ''}`,
+      name: `${path.basename(file)}${appendMetadata ? `_${metadata}_${fileFullPathHash}_${fileContentHash}` : ''}`,
       query: await readFile(file, 'utf8'),
     };
+
   });
 
   return Promise.all(filesReader);
