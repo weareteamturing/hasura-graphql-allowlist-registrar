@@ -1546,12 +1546,12 @@ async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
   const filesReader = files.map(async file => {
 
     const content = await readFile(file, 'utf8');
-    const fileFullPathHash = crypto.createHash('sha256').update(file, 'utf8').hexdigest();
-    const fileContentHash = crypto.createHash('sha256').update(content, 'utf8').hexdigest();
+    const fileFullPathHash = crypto.createHash('sha256').update(file, 'utf8').digest('hex');
+    const fileContentHash = crypto.createHash('sha256').update(content, 'utf8').digest('hex');
 
     return {
       name: `${path.basename(file)}${appendMetadata ? `_${metadata}_${fileFullPathHash}_${fileContentHash}` : ''}`,
-      query: await readFile(file, 'utf8'),
+      query: content,
     };
 
   });
