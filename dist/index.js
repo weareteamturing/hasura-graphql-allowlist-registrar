@@ -1479,6 +1479,7 @@ const util = __webpack_require__(669);
 const path = __webpack_require__(622);
 const axios = __webpack_require__(53).default;
 const DateTime = __webpack_require__(315).DateTime;
+const crypto = __webpack_require__(417);
 
 const readFile = util.promisify(__webpack_require__(747).readFile);
 const glob = util.promisify(__webpack_require__(402));
@@ -1538,14 +1539,21 @@ class HasuraAllowlistClient {
 
 /** @returns {Array<{ name: string, query: string }>} */
 async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
-  const files = await glob(filesPath);
-  const metadata = `${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_ACTOR}_${process.env.GITHUB_SHA}`;
 
+  const metadata = `${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_REPOSITORY}_${process.env.GITHUB_SHA}`;
+
+  const files = await glob(filesPath);
   const filesReader = files.map(async file => {
+
+    const content = await readFile(file, 'utf8');
+    const fileFullPathHash = crypto.createHash('sha256').update(file, 'utf8').hexdigest();
+    const fileContentHash = crypto.createHash('sha256').update(content, 'utf8').hexdigest();
+
     return {
-      name: `${path.basename(file)}${appendMetadata ? `_${metadata}` : ''}`,
+      name: `${path.basename(file)}${appendMetadata ? `_${metadata}_${fileFullPathHash}_${fileContentHash}` : ''}`,
       query: await readFile(file, 'utf8'),
     };
+
   });
 
   return Promise.all(filesReader);
@@ -12115,6 +12123,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 /***/ (function(module) {
 
 module.exports = require("stream");
+
+/***/ }),
+
+/***/ 417:
+/***/ (function(module) {
+
+module.exports = require("crypto");
 
 /***/ }),
 
