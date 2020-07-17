@@ -8,7 +8,7 @@
 
 ## 어떻게 사용하나요?
 
-1. [workflow-main.example.yml](https://github.com/susemeee/hasura-graphql-allowlist-registrar/blob/v1/workflow-main.example.yml) 파일을 다운로드 받습니다.
+1. [workflow-main.example.yml](https://github.com/susemeee/hasura-graphql-allowlist-registrar/blob/master/workflow-main.example.yml) 파일을 다운로드 받습니다.
 2. GraphQL 쿼리를 등록할 GitHub 레포지토리에 `.github/workflows` 폴더를 생성합니다.
 3. 다운로드받은 파일의 이름을 `workflow.yml`로 변경 후 해당 폴더 안에 집어넣습니다.
 4. Github Secrets에 `hasuraHost`와 `hasuraKey`를 등록합니다. (https://github.com/레포이름/settings/secrets) 또는 레포 홈 -> settings -> secrets
