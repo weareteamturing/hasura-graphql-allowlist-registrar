@@ -9,14 +9,16 @@ const glob = util.promisify(require('glob'));
 
 
 class HasuraAllowlistClient {
-  constructor(host) {
+  constructor(host, adminKey) {
     this.host = host;
+    this.adminKey = adminKey;
   }
 
   get authData() {
     return {
       headers: {
         'X-Hasura-Role': 'admin',
+        'X-Hasura-Admin-Secret': this.adminKey,
       },
     };
   }
@@ -59,12 +61,13 @@ class HasuraAllowlistClient {
 }
 
 /** @returns {Array<{ name: string, query: string }>} */
-async function getGQLFiles(filesPath = '**/*.gql') {
+async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
   const files = await glob(filesPath);
+  const metadata = DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd');
 
   const filesReader = files.map(async file => {
     return {
-      name: path.basename(file),
+      name: `${path.basename(file)}${appendMetadata ? `_${metadata}` : ''}`,
       query: await readFile(file, 'utf8'),
     };
   });
@@ -80,12 +83,17 @@ async function run() {
     }
 
     const HASURA_URL = core.getInput('host');
-    const client = new HasuraAllowlistClient(HASURA_URL);
+    const HASURA_KEY = core.getInput('key');
+    const client = new HasuraAllowlistClient(HASURA_URL, HASURA_KEY);
 
-    const gqls = await getGQLFiles(`${process.env.GITHUB_WORKSPACE}/**/*.gql`);
+    const gqls = await getGQLFiles(`${process.env.GITHUB_WORKSPACE}/**/*.gql`, true);
 
-    const collectionName = `QueryCollection_${DateTime.local().toFormat('yyyyMMdd')}`;
-    await client.createQueryCollection(collectionName);
+    // const collectionName = `QueryCollection_${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}`;
+    // https://github.com/hasura/graphql-engine/issues/4138
+    const collectionName = 'allowed-queries';
+    // can fail
+    await client.createQueryCollection(collectionName).catch(console.warn);
+
     for (const { name, query } of gqls) {
       await client.addQueryToCollection(collectionName, name, query);
     }
@@ -93,6 +101,7 @@ async function run() {
 
   }
   catch (error) {
+    console.error(error)
     core.setFailed(error.message);
   }
 }
