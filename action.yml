@@ -1,12 +1,16 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'hasura-graphql-allowlist-registrar'
+description: 'Extracts GraphQL files in a repository and registers them into hasura server'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  host:
+    description: 'Hasura server host'
     required: true
-    default: '1000'
+    default: 'http://hasura-server:8081'
+  key:
+    description: 'Hasura admin key'
+    required: true
+    default: ''
 outputs:
-  time: # output will be available to future steps 
+  time:
     description: 'The message to output'
 runs:
   using: 'node12'
