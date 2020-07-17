@@ -10,5 +10,5 @@ jobs:
     - name: Register action step
       uses: susemeee/hasura-graphql-allowlist-registrar@v1
       with:
-        host: 'https://hasura-server-example.hasura.app'
-        key: 'keykeykey'
+        host: ${{ secrets.hasuraHost }}
+        key:  ${{ secrets.hasuraKey }}
