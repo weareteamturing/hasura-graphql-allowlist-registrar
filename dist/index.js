@@ -1540,7 +1540,7 @@ class HasuraAllowlistClient {
 /** @returns {Array<{ name: string, query: string }>} */
 async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
 
-  const metadata = `${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_REPOSITORY}_${process.env.GITHUB_SHA}`;
+  const metadata = `${process.env.GITHUB_REPOSITORY}_${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}_${process.env.GITHUB_SHA}`;
 
   const files = await glob(filesPath);
   const filesReader = files.map(async file => {
