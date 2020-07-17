@@ -9,14 +9,16 @@ const glob = util.promisify(require('glob'));
 
 
 class HasuraAllowlistClient {
-  constructor(host) {
+  constructor(host, adminKey) {
     this.host = host;
+    this.adminKey = adminKey;
   }
 
   get authData() {
     return {
       headers: {
         'X-Hasura-Role': 'admin',
+        'X-Hasura-Admin-Secret': this.adminKey,
       },
     };
   }
@@ -80,7 +82,8 @@ async function run() {
     }
 
     const HASURA_URL = core.getInput('host');
-    const client = new HasuraAllowlistClient(HASURA_URL);
+    const HASURA_KEY = core.getInput('key');
+    const client = new HasuraAllowlistClient(HASURA_URL, HASURA_KEY);
 
     const gqls = await getGQLFiles(`${process.env.GITHUB_WORKSPACE}/**/*.gql`);
 
