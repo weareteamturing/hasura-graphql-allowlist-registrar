@@ -1566,14 +1566,14 @@ function handleHasuraError(ignoreExpectedError = false) {
   return ignoreExpectedError === false ? function (error) { throw error; } : function (error) {
 
     if (error.response) {
-      if (error.response.data && error.response.data.code === 400) {
+      if (error.response.data && error.response.status === 400) {
         if (error.response.data.code === 'already-exists') {
           // error to ignore (createQueryCollection)
           console.warn(error.response.data);
           return;
         }
       }
-      if (error.response.data && error.response.data.code === 500) {
+      if (error.response.data && error.response.status === 500) {
         if (error.response.data.code === 'database query error') {
           // error to ignore (addCollectionToAllowlist)
           console.warn(error.response.data);
@@ -1607,7 +1607,7 @@ async function run() {
     for (const { name, query } of gqls) {
       await client.addQueryToCollection(collectionName, name, query).catch(handleHasuraError(true));
     }
-    await client.addCollectionToAllowlist(collectionName);
+    await client.addCollectionToAllowlist(collectionName).catch(handleHasuraError(true));
 
   }
   catch (error) {
