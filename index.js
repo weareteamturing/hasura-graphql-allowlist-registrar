@@ -81,6 +81,23 @@ async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
 }
 
 
+function handleHasuraError(ignoreAlreadyExistError = false) {
+  return ignoreAlreadyExistError === false ? function (error) { throw error; } : function (error) {
+
+    if (error.response) {
+      if (error.response.data && error.response.data.code) {
+        if (error.response.data.code === 'already-exists') {
+          // error to ignore
+          console.warn(error.response.data);
+          return;
+        }
+      }
+    }
+    throw error;
+  }
+}
+
+
 async function run() {
   try {
     if (!process.env.GITHUB_WORKSPACE) {
@@ -97,10 +114,10 @@ async function run() {
     // https://github.com/hasura/graphql-engine/issues/4138
     const collectionName = 'allowed-queries';
     // can fail
-    await client.createQueryCollection(collectionName).catch(console.warn);
+    await client.createQueryCollection(collectionName).catch(handleHasuraError(true));
 
     for (const { name, query } of gqls) {
-      await client.addQueryToCollection(collectionName, name, query);
+      await client.addQueryToCollection(collectionName, name, query).catch(handleHasuraError(true));
     }
     await client.addCollectionToAllowlist(collectionName);
 
