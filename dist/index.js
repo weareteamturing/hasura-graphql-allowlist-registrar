@@ -1574,7 +1574,7 @@ function handleHasuraError(ignoreExpectedError = false) {
         }
       }
       if (error.response.data && error.response.status === 500) {
-        if (error.response.data.code === 'database query error') {
+        if (error.response.data.error === 'database query error') {
           // error to ignore (addCollectionToAllowlist)
           console.warn(error.response.data);
           return;
