@@ -1557,13 +1557,25 @@ async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
 }
 
 
-function handleHasuraError(ignoreAlreadyExistError = false) {
-  return ignoreAlreadyExistError === false ? function (error) { throw error; } : function (error) {
+/**
+ * Hasura does not provide API to check whether query collection with name 'allowed-queries' present
+ * so we have to call API first then check ignorable(expected) error
+ * @param {Boolean} ignoreExpectedError
+ */
+function handleHasuraError(ignoreExpectedError = false) {
+  return ignoreExpectedError === false ? function (error) { throw error; } : function (error) {
 
     if (error.response) {
-      if (error.response.data && error.response.data.code) {
+      if (error.response.data && error.response.data.code === 400) {
         if (error.response.data.code === 'already-exists') {
-          // error to ignore
+          // error to ignore (createQueryCollection)
+          console.warn(error.response.data);
+          return;
+        }
+      }
+      if (error.response.data && error.response.data.code === 500) {
+        if (error.response.data.code === 'database query error') {
+          // error to ignore (addCollectionToAllowlist)
           console.warn(error.response.data);
           return;
         }
