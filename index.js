@@ -2,7 +2,6 @@ const core = require('@actions/core');
 const util = require('util');
 const path = require('path');
 const axios = require('axios').default;
-const DateTime = require('luxon').DateTime;
 const crypto = require('crypto');
 
 const readFile = util.promisify(require('fs').readFile);
@@ -118,9 +117,10 @@ async function run() {
 
     const HASURA_URL = core.getInput('host');
     const HASURA_KEY = core.getInput('key');
+    const targetPath = core.getInput('path');
     const client = new HasuraAllowlistClient(HASURA_URL, HASURA_KEY);
 
-    const gqls = await getGQLFiles(`${process.env.GITHUB_WORKSPACE}/**/*.gql`, true);
+    const gqls = await getGQLFiles(targetPath || `${process.env.GITHUB_WORKSPACE}/**/*.gql`, true);
 
     // const collectionName = `QueryCollection_${DateTime.local().setZone('Asia/Seoul').toFormat('yyyyMMdd')}`;
     // https://github.com/hasura/graphql-engine/issues/4138
