@@ -95,7 +95,7 @@ function handleHasuraError(ignoreAlreadyExistsError = false, ignoreDatabaseError
         if (error.response.data && error.response.status === 400) {
           if (error.response.data.code === 'already-exists') {
             // error to ignore (createQueryCollection)
-            console.log('Ignored createQueryCollection error, because collection name to add already exists.');
+            console.log('Ignored createQueryCollection/addQueryToCollection error, because collection name to add already exists.');
             return true;
           }
         }
