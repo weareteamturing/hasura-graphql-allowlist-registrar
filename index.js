@@ -83,26 +83,33 @@ async function getGQLFiles(filesPath = '**/*.gql', appendMetadata = false) {
 /**
  * Hasura does not provide API to check whether query collection with name 'allowed-queries' present
  * so we have to call API first then check ignorable(expected) error
- * @param {Boolean} ignoreExpectedError
+ * @param {Boolean} ignoreAlreadyExistsError
+ * @param {Boolean} ignoreDatabaseError
  */
-function handleHasuraError(ignoreExpectedError = false) {
-  return ignoreExpectedError === false ? function (error) { throw error; } : function (error) {
+function handleHasuraError(ignoreAlreadyExistsError = false, ignoreDatabaseError = false) {
+  return function (error) {
 
     if (error.response) {
-      if (error.response.data && error.response.status === 400) {
-        if (error.response.data.code === 'already-exists') {
-          // error to ignore (createQueryCollection)
-          console.warn(error.response.data);
-          return;
+
+      if (ignoreAlreadyExistsError === true) {
+        if (error.response.data && error.response.status === 400) {
+          if (error.response.data.code === 'already-exists') {
+            // error to ignore (createQueryCollection)
+            console.log('Ignored createQueryCollection error, because collection name to add already exists.');
+            return true;
+          }
         }
       }
-      if (error.response.data && error.response.status === 500) {
-        if (error.response.data.error === 'database query error') {
-          // error to ignore (addCollectionToAllowlist)
-          console.warn(error.response.data);
-          return;
+      if (ignoreDatabaseError === true) {
+        if (error.response.data && error.response.status === 500) {
+          if (error.response.data.error === 'database query error') {
+            // error to ignore (addCollectionToAllowlist)
+            console.log('Ignored addCollectionToAllowlist error, because collection name to add already exists.');
+            return;
+          }
         }
       }
+
     }
     throw error;
   }
@@ -126,12 +133,12 @@ async function run() {
     // https://github.com/hasura/graphql-engine/issues/4138
     const collectionName = 'allowed-queries';
     // can fail
-    await client.createQueryCollection(collectionName).catch(handleHasuraError(true));
+    const collectionNameDidAlreadyExist = await client.createQueryCollection(collectionName).then(() => false).catch(handleHasuraError(true, false));
 
     for (const { name, query } of gqls) {
-      await client.addQueryToCollection(collectionName, name, query).catch(handleHasuraError(true));
+      await client.addQueryToCollection(collectionName, name, query).catch(handleHasuraError(true, false));
     }
-    await client.addCollectionToAllowlist(collectionName).catch(handleHasuraError(true));
+    await client.addCollectionToAllowlist(collectionName).catch(handleHasuraError(true, collectionNameDidAlreadyExist === true));
 
   }
   catch (error) {
