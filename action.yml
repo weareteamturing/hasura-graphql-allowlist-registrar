@@ -9,6 +9,10 @@ inputs:
     description: 'Hasura admin key'
     required: true
     default: ''
+  path:
+    description: 'glob path to find graphql files'
+    required: false
+    default: ''
 outputs:
   time:
     description: 'The message to output'
