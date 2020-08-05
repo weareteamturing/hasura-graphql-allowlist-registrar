@@ -1,6 +1,6 @@
 {
   "name": "hasura-graphql-allowlist-registrar",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "Extracts GraphQL files in a repository and registers them into hasura server",
   "main": "index.js",
   "scripts": {
