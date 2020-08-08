@@ -1,6 +1,8 @@
 
 # Hasura-GraphQL-Allowlist-Registrar
 
+![Yaml file Lint](https://github.com/weareteamturing/hasura-graphql-allowlist-registrar/workflows/Yaml%20file%20Lint/badge.svg?branch=master)
+
 ## 무엇을 하나요?
 
 레포지토리에 푸시할 때 해당 레포지토리 내부의 모든 .gql 파일을 찾아 Hasura allowlist에 등록해 줍니다.
