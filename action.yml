@@ -1,5 +1,10 @@
 name: 'hasura-graphql-allowlist-registrar'
+author: 'susu'
 description: 'Extracts GraphQL files in a repository and registers them into hasura server'
+branding:
+  icon: 'archive'
+  color: 'purple'
+
 inputs:
   host:
     description: 'Hasura server host'
