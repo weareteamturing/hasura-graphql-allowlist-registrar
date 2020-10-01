@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/susemeee/hasura-graphql-allowlist-registrar#readme",
   "dependencies": {
-    "@actions/core": "^1.1.1",
+    "@actions/core": "^1.2.6",
     "axios": "^0.19.2",
     "glob": "^7.1.6",
     "luxon": "^1.24.1"
